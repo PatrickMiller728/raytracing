@@ -6,6 +6,8 @@
 #include "Walnut/Image.h"
 #include "Walnut/Timer.h"
 
+#include <glm/gtc/type_ptr.hpp>
+
 using Walnut::Image;
 using Walnut::ImageFormat;
 using Walnut::Timer;
@@ -15,7 +17,26 @@ class RayTracing : public Walnut::Layer {
 public:
 
 	RayTracing()
-		: mCamera(45.0f, 0.1, 100.0f) {}
+		: mCamera(45.0f, 0.1, 100.0f) {
+		
+		{
+			Sphere sphere;
+			sphere.Position = { 0.0f, 0.0f, 0.0f };
+			sphere.Radius = 0.5f;
+			sphere.Albedo = { 1.0f, 0.0f, 1.0f };
+
+			mScene.Spheres.push_back(sphere);
+		}
+
+		{
+			Sphere sphere;
+			sphere.Position = { 1.0f, 0.0f, -5.0f };
+			sphere.Radius = 1.5f;
+			sphere.Albedo = { 0.2f, 0.3f, 1.0f };
+
+			mScene.Spheres.push_back(sphere);
+		}
+	}
 
 	virtual void OnUpdate(float ts) override {
 		
@@ -31,6 +52,21 @@ public:
 			Render();
 		}
 
+		ImGui::End();
+
+		ImGui::Begin("Scene");
+		for (size_t i = 0; i < mScene.Spheres.size(); i++) {
+
+			ImGui::PushID(i);
+
+			Sphere& sphere = mScene.Spheres[i];
+			ImGui::DragFloat3("Position", glm::value_ptr(sphere.Position), 0.1f);
+			ImGui::DragFloat("Rotation", &sphere.Radius, 0.1f);
+			ImGui::ColorEdit3("Albedo", glm::value_ptr(sphere.Albedo));
+
+			ImGui::Separator();
+			ImGui::PopID();
+		}
 		ImGui::End();
 
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
@@ -58,7 +94,7 @@ public:
 
 		mRenderer.OnResize(mViewportWidth, mViewportHeight);
 		mCamera.OnResize(mViewportWidth, mViewportHeight);
-		mRenderer.Render(mCamera);
+		mRenderer.Render(mScene, mCamera);
 
 		mLastRenderTime = timer.ElapsedMillis();
 	}
@@ -66,6 +102,7 @@ private:
 
 	Renderer mRenderer;
 	Camera mCamera;
+	Scene mScene;
 	uint32_t mViewportWidth = 0, mViewportHeight = 0;
 
 	float mLastRenderTime = 0.0f;
