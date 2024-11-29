@@ -1,4 +1,4 @@
-project "WalnutApp"
+project "RayTracing"
    kind "ConsoleApp"
    language "C++"
    cppdialect "C++17"
@@ -11,11 +11,12 @@ project "WalnutApp"
    {
       "../Walnut/vendor/imgui",
       "../Walnut/vendor/glfw/include",
-      "../Walnut/vendor/glm",
 
-      "../Walnut/Walnut/src",
+      "../Walnut/Walnut/Source",
+      "../Walnut/Walnut/Platform/GUI",
 
       "%{IncludeDir.VulkanSDK}",
+      "%{IncludeDir.glm}",
    }
 
    links
