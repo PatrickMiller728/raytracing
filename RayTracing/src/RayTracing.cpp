@@ -1,13 +1,13 @@
+#include "Renderer.h"
+
 #include "Walnut/Application.h"
 #include "Walnut/EntryPoint.h"
 #include "Walnut/Image.h"
-#include "Walnut/Random.h"
 #include "Walnut/Timer.h"
 
 using Walnut::Image;
 using Walnut::ImageFormat;
 using Walnut::Timer;
-using Walnut::Random;
 
 class RayTracing : public Walnut::Layer {
 
@@ -15,19 +15,26 @@ public:
 	virtual void OnUIRender() override {
 
 		ImGui::Begin("Settings");
+
 		ImGui::Text("Last render: %.3fms", mLastRenderTime);
-		if (ImGui::Button("Render")){
+		if (ImGui::Button("Render")) {
 			Render();
 		}
+
 		ImGui::End();
 
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 		ImGui::Begin("Viewport");
+
 		mViewportWidth = ImGui::GetContentRegionAvail().x;
 		mViewportHeight = ImGui::GetContentRegionAvail().y;
-		if (mImage) {
-			ImGui::Image(mImage->GetDescriptorSet(), { (float)mImage->GetWidth(), (float)mImage->GetHeight() });
+
+		auto image = mRenderer.GetFinalImage();
+		if (image) {
+
+			ImGui::Image(image->GetDescriptorSet(), { (float)image->GetWidth(), (float)image->GetHeight() }, ImVec2(0, 1), ImVec2(1,0));
 		}
+
 		ImGui::End();
 		ImGui::PopStyleVar();
 
@@ -35,30 +42,19 @@ public:
 
 	}
 
-	void Render()
-	{
+	void Render() {
+
 		Timer timer;
 
-		if (!mImage || mViewportWidth != mImage->GetWidth() || mViewportHeight != mImage->GetHeight()) {
+		mRenderer.OnResize(mViewportWidth, mViewportHeight);
+		mRenderer.Render();
 
-			mImage = std::make_shared<Image>(mViewportWidth, mViewportHeight, ImageFormat::RGBA);
-			delete[] mImageData;
-			mImageData = new uint32_t[mViewportWidth * mViewportHeight];
-		}
-
-		for (uint32_t i = 0; i < mViewportWidth * mViewportHeight; i++) {
-
-			mImageData[i] = Random::UInt();
-			mImageData[i] |= 0xff000000;
-		}
-
-		mImage->SetData(mImageData);
 		mLastRenderTime = timer.ElapsedMillis();
 	}
 private:
-	std::shared_ptr<Image> mImage;
-	uint32_t* mImageData = nullptr;
-	uint32_t mViewportWidth = 0, mViewportHeight = 0;
+
+	Renderer mRenderer;
+	uint32_t mViewportWidth, mViewportHeight;
 	float mLastRenderTime = 0.0f;
 };
 
@@ -68,12 +64,12 @@ Walnut::Application* Walnut::CreateApplication(int argc, char** argv) {
 	spec.Name = "Ray Tracing";
 	Walnut::Application* app = new Walnut::Application(spec);
 	app->PushLayer<RayTracing>();
-	app->SetMenubarCallback([app]()
-		{
-			if (ImGui::BeginMenu("File"))
-			{
-				if (ImGui::MenuItem("Exit"))
-				{
+	app->SetMenubarCallback([app]() {
+
+			if (ImGui::BeginMenu("File")) {
+
+				if (ImGui::MenuItem("Exit")) {
+
 					app->Close();
 				}
 				ImGui::EndMenu();
