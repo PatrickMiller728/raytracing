@@ -1,4 +1,5 @@
 #include "Renderer.h"
+#include "Camera.h"
 
 #include "Walnut/Application.h"
 #include "Walnut/EntryPoint.h"
@@ -12,6 +13,15 @@ using Walnut::Timer;
 class RayTracing : public Walnut::Layer {
 
 public:
+
+	RayTracing()
+		: mCamera(45.0f, 0.1, 100.0f) {}
+
+	virtual void OnUpdate(float ts) override {
+		
+		mCamera.OnUpdate(ts);
+	}
+
 	virtual void OnUIRender() override {
 
 		ImGui::Begin("Settings");
@@ -47,14 +57,17 @@ public:
 		Timer timer;
 
 		mRenderer.OnResize(mViewportWidth, mViewportHeight);
-		mRenderer.Render();
+		mCamera.OnResize(mViewportWidth, mViewportHeight);
+		mRenderer.Render(mCamera);
 
 		mLastRenderTime = timer.ElapsedMillis();
 	}
 private:
 
 	Renderer mRenderer;
-	uint32_t mViewportWidth, mViewportHeight;
+	Camera mCamera;
+	uint32_t mViewportWidth = 0, mViewportHeight = 0;
+
 	float mLastRenderTime = 0.0f;
 };
 
