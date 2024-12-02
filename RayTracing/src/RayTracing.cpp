@@ -61,7 +61,7 @@ public:
 
 			Sphere& sphere = mScene.Spheres[i];
 			ImGui::DragFloat3("Position", glm::value_ptr(sphere.Position), 0.1f);
-			ImGui::DragFloat("Rotation", &sphere.Radius, 0.1f);
+			ImGui::DragFloat("Radius", &sphere.Radius, 0.1f);
 			ImGui::ColorEdit3("Albedo", glm::value_ptr(sphere.Albedo));
 
 			ImGui::Separator();
