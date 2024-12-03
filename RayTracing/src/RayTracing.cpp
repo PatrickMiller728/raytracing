@@ -48,7 +48,9 @@ public:
 
 	virtual void OnUpdate(float ts) override {
 		
-		mCamera.OnUpdate(ts);
+		if (mCamera.OnUpdate(ts)) {
+			mRenderer.ResetFrameIndex();
+		}
 	}
 
 	virtual void OnUIRender() override {
@@ -58,6 +60,12 @@ public:
 		ImGui::Text("Last render: %.3fms", mLastRenderTime);
 		if (ImGui::Button("Render")) {
 			Render();
+		}
+
+		ImGui::Checkbox("Accumulate", &mRenderer.GetSettings().Accumulate);
+
+		if (ImGui::Button("Reset")) {
+			mRenderer.ResetFrameIndex();
 		}
 
 		ImGui::End();

@@ -13,11 +13,20 @@ class Renderer {
 
 public:
 
+	struct Settings {
+
+		bool Accumulate = true;
+	};
+
 	Renderer() = default;
 
 	void Render(const Scene& scene, const Camera& camera);
 
 	void OnResize(uint32_t width, uint32_t height);
+
+	void ResetFrameIndex() { mFrameIndex = 1; }
+
+	Settings& GetSettings() { return mSettings; }
 
 	std::shared_ptr<Walnut::Image> GetFinalImage() const { return mFinalImage; }
 private:
@@ -36,9 +45,14 @@ private:
 	HitPayload ClosestHit(const Ray& ray, float hitDistance, int objectIndex);
 	HitPayload Miss(const Ray& ray);
 
+	std::shared_ptr<Walnut::Image> mFinalImage;
+	Settings mSettings;
+
 	const Scene* mActiveScene = nullptr;
 	const Camera* mActiveCamera = nullptr;
 
 	uint32_t* mImageData = nullptr;
-	std::shared_ptr<Walnut::Image> mFinalImage;
+	glm::vec4* mAccumulationData = nullptr;
+
+	uint32_t mFrameIndex = 1;
 };
