@@ -48,6 +48,8 @@ private:
 	std::shared_ptr<Walnut::Image> mFinalImage;
 	Settings mSettings;
 
+	std::vector<uint32_t> mImageHorizontalIter, mImageVerticalIter;
+
 	const Scene* mActiveScene = nullptr;
 	const Camera* mActiveCamera = nullptr;
 

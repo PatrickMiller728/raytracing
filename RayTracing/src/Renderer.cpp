@@ -2,6 +2,8 @@
 
 #include "Walnut/Random.h"
 
+#include <execution>
+
 using Walnut::Random;
 
 namespace Utils {
@@ -38,6 +40,17 @@ void Renderer::OnResize(uint32_t width, uint32_t height) {
 
 	delete[] mAccumulationData;
 	mAccumulationData = new glm::vec4[width * height];
+
+	mImageHorizontalIter.resize(width);
+	mImageVerticalIter.resize(height);
+
+	for (uint32_t i = 0; i < width; i++) {
+		mImageHorizontalIter[i] = i;
+	}
+
+	for (uint32_t i = 0; i < height; i++) {
+		mImageVerticalIter[i] = i;
+	}
 }
 
 glm::vec4 Renderer::PerPixel(uint32_t x, uint32_t y) {
@@ -114,20 +127,21 @@ void Renderer::Render(const Scene& scene, const Camera& camera) {
 		memset(mAccumulationData, 0, mFinalImage->GetWidth() * mFinalImage->GetHeight() * sizeof(glm::vec4));
 	}
 
-	for (uint32_t y = 0; y < mFinalImage->GetHeight(); y++) {
+	std::for_each(std::execution::par, mImageVerticalIter.begin(), mImageVerticalIter.end(),
+		[this](uint32_t y) {
+			std::for_each(std::execution::par, mImageHorizontalIter.begin(), mImageHorizontalIter.end(),
+			[this, y](uint32_t x) {
+					glm::vec4 color = PerPixel(x, y);
+					mAccumulationData[x + y * mFinalImage->GetWidth()] += color;
 
-		for (uint32_t x = 0; x < mFinalImage->GetWidth(); x++) {
+					glm::vec4 accumulatedColor = mAccumulationData[x + y * mFinalImage->GetWidth()];
+					accumulatedColor /= (float)mFrameIndex;
 
-			glm::vec4 color = PerPixel(x, y);
-			mAccumulationData[x + y * mFinalImage->GetWidth()] += color;
+					accumulatedColor = glm::clamp(accumulatedColor, glm::vec4(0.0f), glm::vec4(1.0f));
+					mImageData[x + y * mFinalImage->GetWidth()] = Utils::ConvertToRGBA(accumulatedColor);
+				});
+		});
 
-			glm::vec4 accumulatedColor = mAccumulationData[x + y * mFinalImage->GetWidth()];
-			accumulatedColor /= (float)mFrameIndex;
-
-			accumulatedColor = glm::clamp(accumulatedColor, glm::vec4(0.0f), glm::vec4(1.0f));
-			mImageData[x + y * mFinalImage->GetWidth()] = Utils::ConvertToRGBA(accumulatedColor);
-		}
-	}
 	mFinalImage->SetData(mImageData);
 
 	if (mSettings.Accumulate) {
