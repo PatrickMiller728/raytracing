@@ -1,10 +1,6 @@
 #include "Renderer.h"
 
-#include "Walnut/Random.h"
-
 #include <execution>
-
-using Walnut::Random;
 
 namespace Utils {
 	uint32_t ConvertToRGBA(const glm::vec4& color) {
@@ -16,6 +12,27 @@ namespace Utils {
 
 		 uint32_t result = (a << 24) | (b << 16) | (g << 8) | r;
 		 return result;
+	}
+
+	static uint32_t PCG_Hash(uint32_t input) {
+
+		uint32_t state = input * 747796405u + 2891336453u;
+		uint32_t word = ((state >> ((state >> 28u) + 4u)) ^ state) * 277803737u;
+		return (word >> 22u) ^ word;
+	}
+
+	static float RandomFloat(uint32_t& seed) {
+
+		seed = PCG_Hash(seed);
+		return (float)seed / (float)std::numeric_limits<uint32_t>::max();
+	}
+
+	static glm::vec3 InUnitSphere(uint32_t& seed) {
+		
+		return glm::normalize(glm::vec3(
+			RandomFloat(seed) * 2.0f - 1.0f,
+			RandomFloat(seed) * 2.0f - 1.0f,
+			RandomFloat(seed) * 2.0f - 1.0f));
 	}
 }
 
@@ -62,8 +79,13 @@ glm::vec4 Renderer::PerPixel(uint32_t x, uint32_t y) {
 	glm::vec3 light(0.0f);
 	glm::vec3 contribution(1.0f);
 
+	uint32_t seed = x + y * mFinalImage->GetWidth();
+	seed *= mFrameIndex;
+
 	int bounces = 5;
 	for (int i = 0; i < bounces; i++) {
+
+		seed += i;
 
 		Renderer::HitPayload payload = TraceRay(ray);
 		if (payload.HitDistance < 0.0f) {
@@ -80,8 +102,7 @@ glm::vec4 Renderer::PerPixel(uint32_t x, uint32_t y) {
 		contribution *= material.Albedo;
 
 		ray.Origin = payload.WorldPosition + payload.WorldNormal * 0.0001f;
-		// ray.Direction = glm::reflect(ray.Direction, payload.WorldNormal + material.Roughness * Walnut::Random::Vec3(-0.5f, 0.5f));
-		ray.Direction = glm::normalize(payload.WorldNormal + Walnut::Random::InUnitSphere());
+		ray.Direction = glm::normalize(payload.WorldNormal + Utils::InUnitSphere(seed));
 	}
 
 	return glm::vec4(light, 1.0f);
