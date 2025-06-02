@@ -4,7 +4,7 @@ bin/
 bin-int/
 build/
 .idea/
- 
+
 # Files
 *.vcxproj
 *.vcxproj.user
