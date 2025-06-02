@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.31.6)
 
-include(external/Walnut/vendor/vcpkg/scripts/buildsystems/vcpkg.cmake)
-
 project(raytracing)
 
 set(CMAKE_CXX_STANDARD 20)

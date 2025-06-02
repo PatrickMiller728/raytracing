@@ -7,7 +7,16 @@
       "binaryDir": "${sourceDir}/build",
       "cacheVariables": {
         "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
-      }
+      },
+      "hidden": true
+    },
+    {
+      "name": "default",
+      "inherits": "vcpkg",
+      "environment": {
+        "VCPKG_ROOT": "external/Walnut/vendor/vcpkg"
+      },
+      "hidden": true
     }
   ]
 }
