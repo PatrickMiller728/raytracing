@@ -1,3 +1,4 @@
-[submodule "Walnut"]
-	path = Walnut
-	url = https://github.com/TheCherno/Walnut
+[submodule "external/Walnut"]
+	path = external/Walnut
+	url = https://github.com/PatrickMiller728/Walnut.git
+	branch = cmake

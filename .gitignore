@@ -2,12 +2,12 @@
 .vs/
 bin/
 bin-int/
+build/
+.idea/
 
 # Files
 *.vcxproj
 *.vcxproj.user
 *.vcxproj.filters
 *.sln
-
-# Exclude
-!vendor/bin
+CMakeUserPresets.json
