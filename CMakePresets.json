@@ -15,8 +15,7 @@
       "inherits": "vcpkg",
       "environment": {
         "VCPKG_ROOT": "external/Walnut/vendor/vcpkg"
-      },
-      "hidden": true
+      }
     }
   ]
 }
