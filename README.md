@@ -40,7 +40,13 @@ This is most easily done by creating a CMakeUserPresets.json file in the root di
 }
 ```
 
-Run CMake
+It is recommended *not* to add `CMakeUserPresets.json` to source control.
+
+Configure the build using CMake:
 ```commandline
-cmake --build --preset default
+cmake --preset=default
+```
+Build the Project:
+```commandline
+cmake --build build
 ```
