@@ -15,6 +15,9 @@
       "inherits": "vcpkg",
       "environment": {
         "VCPKG_ROOT": "external/Walnut/vendor/vcpkg"
+      },
+      "cacheVariables": {
+        "VCPKG_MANIFEST_DIR": "${sourceDir}/external/Walnut"
       }
     }
   ]
